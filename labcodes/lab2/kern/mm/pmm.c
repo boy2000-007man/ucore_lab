@@ -347,7 +347,7 @@ pmm_init(void) {
 // return vaule: the kernel virtual address of this pte
 pte_t *
 get_pte(pde_t *pgdir, uintptr_t la, bool create) {
-    /* LAB2 EXERCISE 2: YOUR CODE
+    /* LAB2 EXERCISE 2: 2012011312
      *
      * If you need to visit a physical address, please use KADDR()
      * please read pmm.h for useful macros
@@ -372,10 +372,10 @@ get_pte(pde_t *pgdir, uintptr_t la, bool create) {
     pde_t *pdep = &pgdir[PDX(la)];              // (1) find page directory entry
     if (!(*pdep & PTE_P) && create) {           // (2) check if entry is not present
         struct Page *page = alloc_page();       // (3) check if creating is needed, then alloc page for page table
-                                                // CAUTION: this page is used for page table, not for common data page
+        assert(page);                           // CAUTION: this page is used for page table, not for common data page
         set_page_ref(page, 1);                  // (4) set page reference
         uintptr_t pa = page2pa(page);           // (5) get linear address of page
-        memset((void *)pa, 0, PGSIZE);          // (6) clear page content using memset
+        memset(KADDR(pa), 0, PGSIZE);          // (6) clear page content using memset
         *pdep = pa | PTE_U | PTE_W | PTE_P;     // (7) set page directory entry's permission
     }
     return (*pdep & PTE_P) ? (pte_t *)KADDR(PDE_ADDR(*pdep)) + PTX(la) : NULL;          // (8) return page table entry
@@ -400,7 +400,7 @@ get_page(pde_t *pgdir, uintptr_t la, pte_t **ptep_store) {
 //note: PT is changed, so the TLB need to be invalidate 
 static inline void
 page_remove_pte(pde_t *pgdir, uintptr_t la, pte_t *ptep) {
-    /* LAB2 EXERCISE 3: YOUR CODE
+    /* LAB2 EXERCISE 3: 2012011312
      *
      * Please check if ptep is valid, and tlb must be manually updated if mapping is updated
      *
